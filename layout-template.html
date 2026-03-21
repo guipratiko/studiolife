@@ -115,15 +115,52 @@
     }
     .hero__bg {
       position: absolute; inset: 0;
+      z-index: 0;
       object-fit: cover;
       width: 100%; height: 100%;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
     .hero__overlay {
       position: absolute; inset: 0;
+      z-index: 1;
       background: linear-gradient(120deg, rgba(0, 0, 0, 0.60), rgba(20, 44, 0, 0.42) 45%, rgba(109, 220, 0, 0.22));
+    }
+    .hero__video-prompt {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.22);
+    }
+    .hero.hero--needs-gesture .hero__video-prompt {
+      display: flex;
+    }
+    .hero__video-prompt-btn {
+      pointer-events: auto;
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 14px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hero__video-prompt-btn:active {
+      transform: scale(0.98);
     }
     .hero__content {
       position: relative;
+      z-index: 3;
       text-align: center;
       color: #fff;
       max-width: 760px;
@@ -380,6 +417,25 @@
     @media (prefers-reduced-motion: reduce) {
       .testimonials__track { animation: none; }
     }
+
+    .unidade-endereco {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .unidade-endereco h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .unidade-endereco p {
+      color: var(--text-soft);
+      line-height: 1.75;
+    }
+    .franquia-lead {
+      max-width: 720px;
+      margin: 0 auto 24px;
+      color: var(--text-soft);
+    }
   </style>
 </head>
 <body>
@@ -404,14 +460,27 @@
 
   <!-- ════════════════ HERO ════════════════ -->
   <section class="hero">
-    <video class="hero__bg" autoplay muted loop playsinline>
+    <video
+      id="hero-video"
+      class="hero__bg"
+      autoplay
+      muted
+      loop
+      playsinline
+      webkit-playsinline
+      preload="auto"
+      disablePictureInPicture
+    >
       <source src="img/banner.mp4" type="video/mp4" />
     </video>
     <div class="hero__overlay"></div>
+    <div class="hero__video-prompt" aria-hidden="true">
+      <button type="button" class="hero__video-prompt-btn">Toque para reproduzir o vídeo</button>
+    </div>
     <div class="hero__content">
       <h1>Transforme seu estilo de vida com a Studio Life</h1>
-      <p>Treinos, bem-estar e acompanhamento inteligente para resultados reais no seu ritmo.</p>
-      <a href="#contato" class="btn">Comecar Agora</a>
+      <p>Treinamento personalizado, saúde e resultados reais — com avaliação completa e plano feito para você.</p>
+      <a href="#contato" class="btn">Começar agora</a>
     </div>
   </section>
 
@@ -423,10 +492,10 @@
           <img src="img/96.png" alt="Studio Life - secao sobre" />
         </div>
         <div class="split__text">
-          <h2>Título da seção sobre</h2>
-          <p>Parágrafo descritivo da seção. Explique o conceito principal, proposta de valor ou diferenciais de forma clara e direta.</p>
-          <p>Segundo parágrafo complementar com mais detalhes ou contexto.</p>
-          <a href="#" class="btn">Saiba mais</a>
+          <h2>Quem somos</h2>
+          <p>O Studio Life é um estúdio de treinamento personalizado focado em saúde, qualidade de vida e resultados reais. Nosso trabalho vai além de uma academia comum: cada aluno passa por uma avaliação completa e recebe um plano de treino totalmente individualizado, com acompanhamento próximo e ajustes constantes.</p>
+          <p>Nosso objetivo é entregar resultado com segurança, respeitando as limitações e necessidades de cada pessoa.</p>
+          <a href="#contato" class="btn">Agende uma conversa</a>
         </div>
       </div>
     </div>
@@ -440,9 +509,10 @@
           <img src="img/97.png" alt="Studio Life - segunda secao" />
         </div>
         <div class="split__text">
-          <h2>Título da segunda seção</h2>
-          <p>Texto complementar com informações adicionais sobre o tema ou produto apresentado.</p>
-          <a href="#" class="btn">Explorar</a>
+          <h2>Como funciona o atendimento</h2>
+          <p>O atendimento começa com uma avaliação física detalhada, incluindo análise corporal, testes de mobilidade, força e equilíbrio. A partir disso, desenvolvemos um plano de treino personalizado, focado no seu objetivo — emagrecimento, ganho de massa, melhora da saúde ou qualidade de vida.</p>
+          <p>O acompanhamento é contínuo, com reavaliações e ajustes frequentes para garantir evolução constante.</p>
+          <a href="#contato" class="btn">Quero conhecer</a>
         </div>
       </div>
     </div>
@@ -452,40 +522,40 @@
   <section class="section text-center" id="formula">
     <div class="container">
       <div class="section-header text-center">
-        <h2>Título da seção de cards</h2>
-        <p>Descrição breve do que será apresentado nos cards abaixo, com até duas linhas.</p>
+        <h2>O que você encontra aqui</h2>
+        <p>Metodologia, cuidado e estrutura pensados para o seu objetivo — com segurança e acompanhamento de verdade.</p>
       </div>
       <div class="cards">
         <div class="card">
           <div class="card__icon"></div>
-          <h3>Card 1</h3>
-          <p>Descrição curta do item ou funcionalidade apresentada neste card.</p>
-          <a href="#" class="btn">Ver mais</a>
+          <h3>Treino 100% personalizado</h3>
+          <p>Plano individualizado para o seu momento, objetivo e histórico — sem treino genérico de academia lotada.</p>
+          <a href="#contato" class="btn">Fale conosco</a>
         </div>
         <div class="card">
           <div class="card__icon"></div>
-          <h3>Card 2</h3>
-          <p>Descrição curta do item ou funcionalidade apresentada neste card.</p>
-          <a href="#" class="btn">Ver mais</a>
+          <h3>Avaliação física completa</h3>
+          <p>Análise corporal e testes que orientam cada decisão do seu programa, com clareza e método.</p>
+          <a href="#contato" class="btn">Fale conosco</a>
         </div>
         <div class="card">
           <div class="card__icon"></div>
-          <h3>Card 3</h3>
-          <p>Descrição curta do item ou funcionalidade apresentada neste card.</p>
-          <a href="#" class="btn">Ver mais</a>
+          <h3>Acompanhamento próximo</h3>
+          <p>Reavaliações e ajustes frequentes para você evoluir com segurança e consistência.</p>
+          <a href="#contato" class="btn">Fale conosco</a>
         </div>
         <div class="card">
           <div class="card__icon"></div>
-          <h3>Card 4</h3>
-          <p>Descrição curta do item ou funcionalidade apresentada neste card.</p>
-          <a href="#" class="btn">Ver mais</a>
+          <h3>Saúde e movimento</h3>
+          <p>Foco em prevenção de lesões e correção de movimento, em um ambiente exclusivo e acolhedor.</p>
+          <a href="#contato" class="btn">Fale conosco</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ════════════════ DEPOIMENTOS ════════════════ -->
-  <section class="section section--alt">
+  <section class="section section--alt" id="depoimentos">
     <div class="container">
       <div class="section-header text-center">
         <h2>Depoimentos</h2>
@@ -581,33 +651,90 @@
         <div class="results__item">
           <div class="results__item-icon"></div>
           <div class="results__item-text">
-            <h4>Diferencial 1</h4>
-            <p>Descrição breve do diferencial ou resultado apresentado.</p>
+            <h4>Treinamento 100% personalizado</h4>
+            <p>Programa feito para o seu objetivo — sem rotina de “ficha padrão”.</p>
           </div>
         </div>
         <div class="results__item">
           <div class="results__item-icon"></div>
           <div class="results__item-text">
-            <h4>Diferencial 2</h4>
-            <p>Descrição breve do diferencial ou resultado apresentado.</p>
+            <h4>Avaliação física completa</h4>
+            <p>Base técnica para decisões seguras e evolução consistente.</p>
           </div>
         </div>
         <div class="results__item">
           <div class="results__item-icon"></div>
           <div class="results__item-text">
-            <h4>Diferencial 3</h4>
-            <p>Descrição breve do diferencial ou resultado apresentado.</p>
+            <h4>Acompanhamento próximo</h4>
+            <p>Presença e orientação durante o processo — você não fica sozinho.</p>
           </div>
         </div>
         <div class="results__item">
           <div class="results__item-icon"></div>
           <div class="results__item-text">
-            <h4>Diferencial 4</h4>
-            <p>Descrição breve do diferencial ou resultado apresentado.</p>
+            <h4>Foco em saúde e prevenção de lesões</h4>
+            <p>Resultado com responsabilidade e respeito ao seu corpo.</p>
           </div>
         </div>
-        <a href="#" class="btn">Call to Action</a>
+        <div class="results__item">
+          <div class="results__item-icon"></div>
+          <div class="results__item-text">
+            <h4>Correção de movimento</h4>
+            <p>Qualidade técnica para treinar melhor e com mais segurança.</p>
+          </div>
+        </div>
+        <div class="results__item">
+          <div class="results__item-icon"></div>
+          <div class="results__item-text">
+            <h4>Ambiente exclusivo</h4>
+            <p>Não é academia comum — experiência personalizada e acolhedora.</p>
+          </div>
+        </div>
+        <div class="results__item">
+          <div class="results__item-icon"></div>
+          <div class="results__item-text">
+            <h4>Evolução monitorada</h4>
+            <p>Reavaliações e ajustes para manter sua evolução no caminho certo.</p>
+          </div>
+        </div>
+        <a href="#contato" class="btn">Começar na Studio Life</a>
       </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ UNIDADE ════════════════ -->
+  <section class="section section--alt" id="unidades">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2>Nossa unidade</h2>
+        <p>Hoje contamos com uma única unidade, no Setor Pedro Miranda — Senador Canedo (GO).</p>
+      </div>
+      <div class="unidade-endereco">
+        <h3>Endereço</h3>
+        <p>
+          Rua Dormerver José Ferreira<br />
+          Qd 03 Lt 18-20 – Anária Galeria<br />
+          Bairro Residencial Pedro Miranda<br />
+          Senador Canedo – GO<br />
+          CEP: 75262-547
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════ FRANQUIAS ════════════════ -->
+  <section class="section" id="franquias">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2>Franquias</h2>
+        <p>O Studio Life está em processo de expansão e, em breve, abrirá oportunidades para novos parceiros por meio do modelo de franquia.</p>
+      </div>
+      <p class="text-center franquia-lead">
+        Se você tem interesse em investir em um negócio sólido na área da saúde e performance, entre em contato para mais informações.
+      </p>
+      <p class="text-center" style="margin-bottom: 0;">
+        <a href="#contato" class="btn">Quero saber sobre franquias</a>
+      </p>
     </div>
   </section>
 
@@ -616,17 +743,16 @@
     <div class="container">
       <div class="form-section">
         <div class="form-section__info">
-          <h2>Entre para o grupo VIP</h2>
-          <p>Texto explicativo sobre o formulário e o que o usuário vai receber ou ganhar ao se cadastrar.</p>
+          <h2>Fale com a Studio Life</h2>
+          <p>Envie sua mensagem para tirar dúvidas, conhecer a estrutura ou agendar uma conversa. Nossa equipe retorna o mais breve possível.</p>
           <ul>
-            <li>Benefício ou ponto de destaque 1</li>
-            <li>Benefício ou ponto de destaque 2</li>
-            <li>Benefício ou ponto de destaque 3</li>
-            <li>Benefício ou ponto de destaque 4</li>
-            <li>Benefício ou ponto de destaque 5</li>
+            <li>Atendimento personalizado e orientação sobre o método</li>
+            <li>Informações sobre avaliação e plano de treino individual</li>
+            <li>Agendamento de visita ou contato com a unidade</li>
+            <li>Interesse em franquias e parcerias</li>
           </ul>
         </div>
-        <div class="form">
+        <form class="form" action="#" method="post">
           <div class="form-row">
             <div>
               <label for="nome">Nome</label>
@@ -659,8 +785,8 @@
             <label for="msg">Mensagem (opcional)</label>
             <textarea id="msg" placeholder="Escreva sua mensagem..."></textarea>
           </div>
-          <button class="btn">Enviar</button>
-        </div>
+          <button type="submit" class="btn">Enviar</button>
+        </form>
       </div>
     </div>
   </section>
@@ -671,7 +797,7 @@
       <div class="footer__top">
         <div class="footer__brand">
           <img class="footer__logo" src="img/Logo.png" alt="Studio Life" />
-          <p>Studio Life: performance com saude, comunidade e tecnologia para uma rotina mais ativa.</p>
+          <p>Studio Life — treinamento personalizado em Senador Canedo (GO), com foco em saúde, segurança e resultados reais.</p>
           <div class="footer__socials">
             <a href="#">Ig</a>
             <a href="#">Fb</a>
@@ -682,35 +808,97 @@
         <div class="footer__col">
           <h4>Menu</h4>
           <ul>
-            <li><a href="#">Sobre Nós</a></li>
-            <li><a href="#">Depoimentos</a></li>
-            <li><a href="#">Resultados</a></li>
-            <li><a href="#">Unidades</a></li>
+            <li><a href="#sobre">Sobre nós</a></li>
+            <li><a href="#depoimentos">Depoimentos</a></li>
+            <li><a href="#resultados">Resultados</a></li>
+            <li><a href="#unidades">Unidade</a></li>
           </ul>
         </div>
         <div class="footer__col">
           <h4>Institucional</h4>
           <ul>
-            <li><a href="#">Franquias</a></li>
-            <li><a href="#">Trabalhe Conosco</a></li>
-            <li><a href="#">Privacidade</a></li>
+            <li><a href="#franquias">Franquias</a></li>
+            <li><a href="#contato">Trabalhe conosco</a></li>
+            <li><a href="#">Política de privacidade</a></li>
           </ul>
         </div>
         <div class="footer__col">
           <h4>Contato</h4>
           <ul>
-            <li><a href="#">contato@site.com.br</a></li>
-            <li><a href="#">(00) 0000-0000</a></li>
-            <li><a href="#">Endereço, Cidade/UF</a></li>
+            <li>Rua Dormerver José Ferreira, Qd 03 Lt 18-20 – Anária Galeria</li>
+            <li>Residencial Pedro Miranda — Senador Canedo/GO · CEP 75262-547</li>
+            <li><a href="#contato">Fale pelo formulário</a></li>
           </ul>
         </div>
       </div>
       <div class="footer__bottom">
         <span>Copyright © 2025 — Todos os direitos reservados</span>
-        <span>CNPJ: 00.000.000/0001-00</span>
+        <span>CNPJ: 51.599.178/0001-31</span>
       </div>
     </div>
   </footer>
 
+  <script>
+    (function () {
+      var v = document.getElementById("hero-video");
+      var hero = document.querySelector(".hero");
+      var btn = document.querySelector(".hero__video-prompt-btn");
+      if (!v || !hero) return;
+
+      v.muted = true;
+      v.defaultMuted = true;
+      v.setAttribute("playsinline", "");
+      v.setAttribute("webkit-playsinline", "");
+      v.setAttribute("x5-playsinline", "");
+
+      function tryPlay() {
+        var p = v.play();
+        if (p && typeof p.catch === "function") {
+          p.catch(function () {});
+        }
+      }
+
+      tryPlay();
+      v.addEventListener("loadeddata", tryPlay);
+      v.addEventListener("canplay", tryPlay);
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) tryPlay();
+      });
+
+      function syncPrompt() {
+        if (v.paused && !v.ended) {
+          hero.classList.add("hero--needs-gesture");
+        } else {
+          hero.classList.remove("hero--needs-gesture");
+        }
+      }
+
+      v.addEventListener("play", function () {
+        hero.classList.remove("hero--needs-gesture");
+      });
+      v.addEventListener("pause", function () {
+        setTimeout(syncPrompt, 150);
+      });
+
+      hero.addEventListener(
+        "touchstart",
+        function () {
+          tryPlay();
+        },
+        { passive: true }
+      );
+
+      if (btn) {
+        btn.addEventListener("click", function () {
+          tryPlay();
+          setTimeout(syncPrompt, 200);
+        });
+      }
+
+      setTimeout(function () {
+        if (v.paused) syncPrompt();
+      }, 900);
+    })();
+  </script>
 </body>
 </html>
