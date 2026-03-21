@@ -117,9 +117,27 @@
       position: absolute; inset: 0;
       z-index: 0;
       object-fit: cover;
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+    }
+    .hero__video-fallback {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .hero.hero--video-failed .hero__bg {
+      display: none;
+    }
+    .hero.hero--video-failed .hero__video-fallback {
+      display: block;
     }
     .hero__overlay {
       position: absolute; inset: 0;
@@ -460,9 +478,11 @@
 
   <!-- ════════════════ HERO ════════════════ -->
   <section class="hero">
+    <!-- poster: substitua por um frame do banner (ex.: hero-poster.jpg) se quiser -->
     <video
       id="hero-video"
       class="hero__bg"
+      src="img/banner.mp4"
       autoplay
       muted
       loop
@@ -470,9 +490,9 @@
       webkit-playsinline
       preload="auto"
       disablePictureInPicture
-    >
-      <source src="img/banner.mp4" type="video/mp4" />
-    </video>
+      poster="img/96.png"
+    ></video>
+    <img class="hero__video-fallback" src="img/96.png" alt="" width="1920" height="1080" loading="eager" decoding="async" />
     <div class="hero__overlay"></div>
     <div class="hero__video-prompt" aria-hidden="true">
       <button type="button" class="hero__video-prompt-btn">Toque para reproduzir o vídeo</button>
@@ -847,25 +867,58 @@
 
       v.muted = true;
       v.defaultMuted = true;
+      v.volume = 0;
+      try {
+        v.playsInline = true;
+      } catch (e) {}
       v.setAttribute("playsinline", "");
       v.setAttribute("webkit-playsinline", "");
       v.setAttribute("x5-playsinline", "");
+      v.setAttribute("muted", "");
 
       function tryPlay() {
         var p = v.play();
-        if (p && typeof p.catch === "function") {
-          p.catch(function () {});
+        if (p && typeof p.then === "function") {
+          p.then(function () {
+            hero.classList.remove("hero--video-failed");
+          }).catch(function () {});
         }
       }
 
+      function onVideoFatal() {
+        hero.classList.add("hero--video-failed");
+        hero.classList.remove("hero--needs-gesture");
+      }
+
+      v.addEventListener("error", onVideoFatal);
+      v.addEventListener("stalled", function () {
+        tryPlay();
+      });
+
       tryPlay();
+      v.addEventListener("loadedmetadata", tryPlay);
       v.addEventListener("loadeddata", tryPlay);
       v.addEventListener("canplay", tryPlay);
+      v.addEventListener("canplaythrough", tryPlay);
+
       document.addEventListener("visibilitychange", function () {
         if (!document.hidden) tryPlay();
       });
 
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (en) {
+              if (en.isIntersecting && en.intersectionRatio > 0.1) tryPlay();
+            });
+          },
+          { threshold: [0, 0.1, 0.25] }
+        );
+        io.observe(hero);
+      }
+
       function syncPrompt() {
+        if (hero.classList.contains("hero--video-failed")) return;
         if (v.paused && !v.ended) {
           hero.classList.add("hero--needs-gesture");
         } else {
@@ -881,7 +934,14 @@
       });
 
       hero.addEventListener(
-        "touchstart",
+        "touchend",
+        function () {
+          tryPlay();
+        },
+        { passive: true }
+      );
+      hero.addEventListener(
+        "click",
         function () {
           tryPlay();
         },
@@ -889,15 +949,25 @@
       );
 
       if (btn) {
-        btn.addEventListener("click", function () {
+        btn.addEventListener("click", function (ev) {
+          ev.stopPropagation();
           tryPlay();
           setTimeout(syncPrompt, 200);
         });
       }
 
       setTimeout(function () {
-        if (v.paused) syncPrompt();
-      }, 900);
+        if (v.error) onVideoFatal();
+        else if (v.paused) syncPrompt();
+      }, 1200);
+
+      window.addEventListener(
+        "pageshow",
+        function (ev) {
+          if (ev.persisted) tryPlay();
+        },
+        false
+      );
     })();
   </script>
 </body>

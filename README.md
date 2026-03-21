@@ -18,3 +18,9 @@ npm start
 ```
 
 Abra `http://localhost:3000`.
+
+## Vídeo do banner (iOS / Android)
+
+- O `server.js` envia **`Accept-Ranges: bytes`** e responde a **`Range`** com **206 Partial Content**. Sem isso, muitos celulares (principalmente **Safari no iOS**) não reproduzem MP4 corretamente.
+- O arquivo **`banner.mp4`** deve ser **H.264 (vídeo) + AAC (áudio)** em container `.mp4`. Vídeos só em **HEVC/H.265** ou codecs exóticos podem falhar no iPhone.
+- Se ainda não tocar, reexporte com HandBrake/FFmpeg em **H.264** e faça novo deploy.
