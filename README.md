@@ -19,6 +19,16 @@ npm start
 
 Abra `http://localhost:3000`.
 
+## Formulário e webhook (CORS)
+
+O navegador **não pode** chamar `https://back.onlyflow.com.br/...` via JavaScript de outro domínio sem permissão CORS — o OnlyFlow responde com erro nesse caso.
+
+Por isso o site envia `POST` para **`/api/contato`** no **mesmo servidor** (`server.js`), que **repassa** o corpo ao webhook (sem CORS no navegador).
+
+Variável opcional:
+
+- `ONLYFLOW_WEBHOOK_URL` — URL completa do webhook (padrão é a do projeto).
+
 ## Vídeo do banner (iOS / Android)
 
 - O `server.js` envia **`Accept-Ranges: bytes`** e responde a **`Range`** com **206 Partial Content**. Sem isso, muitos celulares (principalmente **Safari no iOS**) não reproduzem MP4 corretamente.

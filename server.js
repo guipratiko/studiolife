@@ -1,13 +1,19 @@
 /**
- * Servidor estático com suporte a Range (bytes) — necessário para vídeo MP4
- * em Safari iOS e muitos navegadores Android (streaming progressivo).
+ * Servidor estático + proxy do formulário (evita CORS no navegador).
+ * Vídeos MP4: suporte a Range (bytes) para iOS/Android.
  */
 const http = require("http");
+const https = require("https");
 const fs = require("fs");
 const path = require("path");
+const { URL } = require("url");
 
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = __dirname;
+
+const WEBHOOK_URL =
+  process.env.ONLYFLOW_WEBHOOK_URL ||
+  "https://back.onlyflow.com.br/api/workflows/webhook/webhookTrigger-1774974204321";
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -25,6 +31,55 @@ const MIME = {
   ".webm": "video/webm",
   ".woff2": "font/woff2",
 };
+
+function readRequestBody(req, limit = 1_000_000) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > limit) {
+        reject(new Error("Payload too large"));
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+
+function proxyWebhook(bodyBuffer, contentType) {
+  return new Promise((resolve, reject) => {
+    const target = new URL(WEBHOOK_URL);
+    const opts = {
+      hostname: target.hostname,
+      port: 443,
+      path: target.pathname + target.search,
+      method: "POST",
+      headers: {
+        "Content-Type": contentType || "application/x-www-form-urlencoded; charset=UTF-8",
+        "Content-Length": bodyBuffer.length,
+        "User-Agent": "StudioLife-site-proxy/1.0",
+      },
+    };
+
+    const reqOut = https.request(opts, (resIn) => {
+      const chunks = [];
+      resIn.on("data", (c) => chunks.push(c));
+      resIn.on("end", () => {
+        resolve({
+          status: resIn.statusCode || 502,
+          body: Buffer.concat(chunks).toString("utf8"),
+        });
+      });
+    });
+    reqOut.on("error", reject);
+    reqOut.write(bodyBuffer);
+    reqOut.end();
+  });
+}
 
 function safePath(urlPath) {
   const decoded = decodeURIComponent(urlPath.split("?")[0]);
@@ -98,7 +153,33 @@ function sendFileWithRange(req, res, filePath, ext) {
   });
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
+  const pathname = (req.url || "").split("?")[0];
+
+  if (req.method === "POST" && (pathname === "/api/contato" || pathname === "/api/contato/")) {
+    try {
+      const ct =
+        req.headers["content-type"] || "application/x-www-form-urlencoded; charset=UTF-8";
+      const body = await readRequestBody(req);
+      const out = await proxyWebhook(body, ct);
+
+      if (out.status >= 200 && out.status < 300) {
+        res.writeHead(303, { Location: "/?enviado=1#contato" });
+        res.end();
+        return;
+      }
+
+      console.error("[webhook]", out.status, out.body.slice(0, 500));
+      res.writeHead(303, { Location: "/?enviado=erro#contato" });
+      res.end();
+    } catch (e) {
+      console.error("[contato]", e);
+      res.writeHead(303, { Location: "/?enviado=erro#contato" });
+      res.end();
+    }
+    return;
+  }
+
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.writeHead(405);
     res.end();
@@ -143,5 +224,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Static server at http://0.0.0.0:${PORT} (Range enabled for video)`);
+  console.log(`http://0.0.0.0:${PORT} — static + POST /api/contato → webhook`);
 });
